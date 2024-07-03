@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Type
 from database import async_session_maker
-from user.model import Users
-from user.repository import UserRepository
+from repositories.listeners_repositories import ListenersRepository
+from repositories.notifications_repositories import NotificationsRepository
+
+
 
 class IUnitOfWork(ABC):
-    users: Type[Users]
+    listeners: Type[ListenersRepository]
+    notifications: Type[NotificationsRepository]
 
     
     def __init__(self):
@@ -38,7 +41,8 @@ class UnitOfWork(IUnitOfWork):
     
     async def __aenter__(self):
         self.session = self.session_factory()
-        self.users = UserRepository(self.session)
+        self.listeners = ListenersRepository(self.session)
+        self.notifications = NotificationsRepository(self.session)
         return self
 
     
