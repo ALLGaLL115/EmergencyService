@@ -1,7 +1,8 @@
 
 
+from database import Base
 from models.notifications_models import Notifications
 
 
-class NotificationsRepository:
+class NotificationsRepository(Base):
     model: Notifications
