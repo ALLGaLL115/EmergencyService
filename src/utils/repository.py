@@ -1,10 +1,10 @@
 from abc import ABC
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from database import Base
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, InvalidRequestError
 
 import logging
 from config.logging_config import setup_logging
@@ -53,9 +53,16 @@ class SQLAlchemyRepository(ISQLAlchemyRepository):
             res = res.scalar_one()
             return res.convert_to_model()
         
-        except SQLAlchemyError as e:
+        except InvalidRequestError as e:
             logger.error(e)
-            raise HTTPException(500)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="This listener is not exists")
+        
+        except SQLAlchemyError as e:
+            logger.error(e.args)
+            logger.error(e._message)
+            logger.error(e._sql_message)
+            logger.error(e)
+            raise
 
         except Exception as e:
             logger.error(e)

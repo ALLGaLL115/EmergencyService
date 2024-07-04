@@ -3,10 +3,11 @@ from fastapi import HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 
 from schemas.listeners_schemas import ListenersCreateSchema
-from uow import IUnitOfWork
+from utils.uow import UnitOfWork, IUnitOfWork
 
 import os
 import pandas as pd
+from io import StringIO
 
 import logging
 from config.logging_config import setup_logging
@@ -41,7 +42,8 @@ class ListenersService:
         async with uow:
             logging.debug('Запрос на получение listener')
             try:
-                listeners = await uow.listeners.get_multiple(user_id=user_id, limit=limit, offset=offset)
+                # listeners = await uow.listeners.get_multiple(user_id=user_id, limit=limit, offset=offset)
+                listeners = await uow.listeners.get_multiple(limit=limit, offset=offset)
                 logger.info("Данные полученны успешно")
                 return listeners
             except HTTPException as e:
@@ -61,14 +63,15 @@ class ListenersService:
                 if os.path.splitext(listeners_file.filename)[1] != ".csv":
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This file have not .csv extension")
                 
-                logger.debug("Обработка входного файла")
-                df = pd.read_csv(listeners_file.read())
-                handled_listeners: list = df.values.tolist()
-                del handled_listeners
-                print(handled_listeners)
-                
-                logging.debug('Запрос на созранение пользователей в бд')
-                await uow.listeners.create_multiple(listeners=handled_listeners)
+                logger.info("Обработка входного файла")
+                bytes_string = str(await listeners_file.read(), 'utf-8')
+                df = pd.read_csv(StringIO(bytes_string))
+                df['phone'] = df['phone'].astype(str)
+                df['phone'] = df['phone'].fillna('').astype(str)
+
+
+                logger.info('Запрос на созранение пользователей в бд')
+                await uow.listeners.create_multiple(listeners=df.to_dict(orient='records'))
                 await uow.commit()
                 logger.info("Запрос отработал успешно")
 
@@ -80,6 +83,7 @@ class ListenersService:
             except Exception as e :
                 await uow.rollback()
                 logger.error(e)
+                logger.error(e.args)
                 raise HTTPException(500)
             
     

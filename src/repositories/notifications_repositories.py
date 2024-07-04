@@ -1,8 +1,8 @@
 
+from utils.repository import SQLAlchemyRepository
 
-from database import Base
 from models.notifications_models import Notifications
 
 
-class NotificationsRepository(Base):
+class NotificationsRepository(SQLAlchemyRepository):
     model: Notifications

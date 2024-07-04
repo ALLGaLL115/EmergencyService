@@ -19,7 +19,7 @@ class IUnitOfWork(ABC):
         raise NotImplemented
 
 
-    async def __aexit__(self):
+    async def __aexit__(self, *args):
         raise NotImplemented
 
 
@@ -46,7 +46,7 @@ class UnitOfWork(IUnitOfWork):
         return self
 
     
-    async def __aexit__(self):
+    async def __aexit__(self, *args):
         await self.rollback()
         await self.session.close()
 
