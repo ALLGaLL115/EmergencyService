@@ -34,7 +34,7 @@ services:
   api:
     <<: [*default-app, *env]
     container_name: notify_app
-    command: docker/start.sh
+    # command: docker/start.sh
     ports:
       - 3000:8000
     depends_on:
