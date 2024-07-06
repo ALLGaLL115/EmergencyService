@@ -56,3 +56,20 @@ class ListenersRepository(SQLAlchemyRepository):
         except Exception as e:
             logger.error(e)
             raise HTTPException(500)
+    
+    async def get_emails_by_id(self, ids: list[int], ):
+        try:
+            logger.debug("Запрос на получение данных из бд")
+            # stmt = select(self.model).filter_by(owner_id=user_id).limit(limit).offset(offset)
+            stmt = select(self.model.email).where(self.model.id.in_(ids))
+            respnonse = await self.session.execute(stmt)
+            emails = respnonse.scalars().all()
+            return emails
+
+        except SQLAlchemyError as e:
+            logger.error(e)
+            raise HTTPException(500)
+        
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(500)

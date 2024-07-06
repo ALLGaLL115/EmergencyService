@@ -12,7 +12,7 @@ from config.logging_config import setup_logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
-class ISQLAlchemyRepository(ABC):
+class SQLAlchemyRepositoryAbstract(ABC):
 
 
     async def get():
@@ -35,7 +35,7 @@ class ISQLAlchemyRepository(ABC):
         raise NotImplemented
     
 
-class SQLAlchemyRepository(ISQLAlchemyRepository):
+class SQLAlchemyRepository(SQLAlchemyRepositoryAbstract):
 
 
     model = None
@@ -91,6 +91,21 @@ class SQLAlchemyRepository(ISQLAlchemyRepository):
             res = await self.session.execute(stmt)
             res = res.scalar_one()
             return res
+        
+        except SQLAlchemyError as e:
+            logger.error(e)
+            raise HTTPException(500)
+
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(500)
+        
+
+    async def create_multiple(self, values: list[dict]):
+        try:
+            stmt = insert(self.model).values(values)
+            await self.session.execute(stmt)
+            
         
         except SQLAlchemyError as e:
             logger.error(e)

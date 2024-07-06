@@ -13,6 +13,7 @@ sys.path.append(os.path.join(sys.path[0], 'src'))
 from config.app_config import settings
 from database import Base
 from models.listener_models import Listeners
+from models.notifications_models import Notifications
 
 
 
