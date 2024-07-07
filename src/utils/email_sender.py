@@ -22,7 +22,7 @@ class EmailSender:
         self.password = settings.SMTP_PASSWORD
 
     
-    async def send_email(self, to_email, subject, body):
+    def send_email(self, to_email, subject, body):
         msg = MIMEMultipart()
         msg['From'] = formataddr(('Sender name', self.username))
         msg['To'] = to_email

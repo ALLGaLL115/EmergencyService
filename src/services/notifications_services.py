@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from schemas.listeners_schemas import ListenersShcema
 from schemas.notifications_schemas import NotificationsCreateSchema
-from tasks.send_notification_tasks import send_bulk_email_task
+# from tasks.send_notification_tasks import send_bulk_email_task
+from tasks.tasks import send_bulk_email_task, send_email_task
 from utils.uow import IUnitOfWork
 
 import logging
@@ -54,6 +55,8 @@ class NotificaionService:
 
                 logger.debug("Отправка по почте ")
                 send_bulk_email_task.delay(listeners_emails, notification.title, notification.body)
+                logger.debug("CTOSH")
+                
 
             except HTTPException as e:
                 # await uow.rollback()

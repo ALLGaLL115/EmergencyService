@@ -6,7 +6,7 @@ x-app: &default-app
 
 x-env: &env
   env_file:
-    - .env  
+    - .dev.env  
 
 services:
 
@@ -48,7 +48,7 @@ services:
   
   celery:
     <<: [*default-app, *env]
-    command: celery -A config.celery_config:celery_app worker --loglevel=INFO
+    command: celery -A tasks.tasks:celery_app worker --loglevel=INFO
     volumes:
       - .:/app
     depends_on:
@@ -61,7 +61,7 @@ services:
   api:
     <<: [*default-app, *env]
     container_name: notify_app
-    # command: docker/start.sh
+    command: docker/start.sh
     ports:
       - 3000:8000
     depends_on:
