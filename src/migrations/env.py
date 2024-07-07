@@ -14,6 +14,8 @@ from config.app_config import settings
 from database import Base
 from models.listener_models import Listeners
 from models.notifications_models import Notifications
+from models.users_model import Users
+from models.listeners_notifications import ListenersNotifications
 
 
 

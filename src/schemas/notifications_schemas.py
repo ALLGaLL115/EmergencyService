@@ -5,8 +5,7 @@ class NotificationsCreateSchema(BaseModel):
     user_id: int
     title: str
     body: str
-    time_updated: datetime
-    time_created: datetime
+
 
 class NotificationsShcema(BaseModel):
     id: int

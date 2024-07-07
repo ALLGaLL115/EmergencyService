@@ -30,9 +30,9 @@ async def listener(id: int,  uow: UOWDep):
 
 
 @router.post('/add_listeners')
-async def add_listeners(listeners_file: Annotated[UploadFile, File(description="Add .csv file with name, phone and email")], uow: UOWDep):
+async def add_listeners(user_id: int, listeners_file: Annotated[UploadFile, File(description="Add .csv file with name, phone and email")], uow: UOWDep):
     try:
-        await ListenersService().add_listeners(listeners_file, uow)
+        await ListenersService().add_listeners(user_id, listeners_file, uow)
         return {"status":"success", "detail":"All listeners was added"}
     except HTTPException as e:
         raise 

@@ -42,9 +42,10 @@ class ListenersService:
         async with uow:
             logging.debug('Запрос на получение listener')
             try:
-                # listeners = await uow.listeners.get_multiple(user_id=user_id, limit=limit, offset=offset)
-                listeners = await uow.listeners.get_multiple(limit=limit, offset=offset)
+                listeners = await uow.listeners.get_multiple(user_id=user_id, limit=limit, offset=offset)
+                # listeners = await uow.listeners.get_multiple(limit=limit, offset=offset)
                 logger.info("Данные полученны успешно")
+                await uow.commit()
                 return listeners
             except HTTPException as e:
                 await uow.rollback()
@@ -57,7 +58,7 @@ class ListenersService:
                 raise HTTPException(500)
 
                 
-    async def add_listeners(self, listeners_file: UploadFile, uow: IUnitOfWork) -> None:
+    async def add_listeners(self, user_id: int, listeners_file: UploadFile, uow: IUnitOfWork) -> None:
         async with uow:
             try:
                 if os.path.splitext(listeners_file.filename)[1] != ".csv":
@@ -66,14 +67,25 @@ class ListenersService:
                 logger.info("Обработка входного файла")
                 bytes_string = str(await listeners_file.read(), 'utf-8')
                 df = pd.read_csv(StringIO(bytes_string))
+                columns_to_check = ListenersCreateSchema.model_fields.keys()
+
+                if not set(columns_to_check).issubset(df.columns):
+                    missing_columns = set(columns_to_check) - set(df.columns)
+                    raise HTTPException(status_code=400, detail="Отсутствуют следующие столбцы: {missing_columns}")
+                
                 df['phone'] = df['phone'].astype(str)
                 df['phone'] = df['phone'].fillna('').astype(str)
+                handled_listeners: list[dict] = df.filter(columns_to_check).to_dict(orient='records')
 
+                for i in handled_listeners:
+                    i["user_id"]=user_id
 
                 logger.info('Запрос на созранение пользователей в бд')
-                await uow.listeners.create_multiple(listeners=df.to_dict(orient='records'))
+                await uow.listeners.create_multiple(listeners=handled_listeners)
                 await uow.commit()
                 logger.info("Запрос отработал успешно")
+
+                # Можно добавлять csv файлы с разными столбцами сервис получит только нужные столбцы
 
             except HTTPException as e:
                 await uow.rollback()

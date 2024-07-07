@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from schemas.listeners_schemas import ListenersShcema
 from schemas.notifications_schemas import NotificationsCreateSchema
 from tasks.send_notification_tasks import send_bulk_email_task
-from uow import IUnitOfWork
+from utils.uow import IUnitOfWork
 
 import logging
 from config.logging_config import setup_logging
@@ -20,10 +20,17 @@ class NotificaionService:
                 logger.debug("Создание нотификации")
                 notify_id = await uow.notifications.create(**notification.model_dump())
 
+                logger.debug("Получение listeners")
                 listeners: list[ListenersShcema] = await uow.listeners.get_all(user_id = notification.user_id)
+                if not listeners:
+                    raise HTTPException(status_code=404, detail="Firstli you must add listeners")
                 
-                await uow.listeners_notifications.create_multiple(values=[{notify_id:i.id} for i in listeners])
+                logging.debug("Создание relationships")
+                logger.debug([{notify_id:i.id} for i in listeners])
+                await uow.listeners_notifications.create_multiple(values=[{'notification_id':notify_id, 'listener_id':i.id} for i in listeners])
                 await uow.commit()
+                return notify_id
+
 
             except HTTPException as e:
                 await uow.rollback()
@@ -40,8 +47,8 @@ class NotificaionService:
         async with uow:
             try:
                 logger.debug("Получение listeners")
-                listeners_id = await uow.listeners_notifications.get_all(notification_id=notification_id)
-                listeners_emails = await uow.listeners.get_multiple_by_id(ids=listeners_id)
+                listeners_id = await uow.listeners_notifications.get_liteners_ids(notification_id=notification_id)
+                listeners_emails = await uow.listeners.get_emails_by_id(ids=listeners_id)
                 
                 logger.debug('Получение notification')
                 notification = await uow.notifications.get(id=notification_id)
@@ -59,7 +66,7 @@ class NotificaionService:
                 raise HTTPException(status_code=500)
             
 
-    async def get_notification(self, uow: IUnitOfWork):
+    async def get_notification(self, id: int, uow: IUnitOfWork):
         async with uow:
             try:
                 logger.debug('Получение notification')

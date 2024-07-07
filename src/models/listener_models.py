@@ -5,7 +5,6 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, func, Strin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from schemas.listeners_schemas import ListenersShcema
-from models.listeners_notifications import listeners_notifications
 
 
 
@@ -18,7 +17,7 @@ class Listeners(Base):
     phone = Column(String(18), nullable=True)
     email = Column(String(128), nullable=False)
 
-    notifications =  relationship("Notifications", secondary='ListenersNotifications', back_populates="listeners")
+    notifications =  relationship("Notifications", secondary='listeners_notifications', back_populates="listeners")
 
     def convert_to_model(self):
         return ListenersShcema(

@@ -5,4 +5,4 @@ from models.notifications_models import Notifications
 
 
 class NotificationsRepository(SQLAlchemyRepository):
-    model: Notifications
+    model = Notifications

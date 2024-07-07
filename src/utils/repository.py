@@ -93,12 +93,13 @@ class SQLAlchemyRepository(SQLAlchemyRepositoryAbstract):
             return res
         
         except SQLAlchemyError as e:
-            logger.error(e)
+            logger.error(e._message)
             raise HTTPException(500)
 
         except Exception as e:
             logger.error(e)
             raise HTTPException(500)
+            
         
 
     async def create_multiple(self, values: list[dict]):

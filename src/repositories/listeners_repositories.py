@@ -39,12 +39,11 @@ class ListenersRepository(SQLAlchemyRepository):
             raise HTTPException(500)
 
     
-    # async def get_multiple(self, user_id: int, limit: int, offset: int):
-    async def get_multiple(self, limit: int, offset: int):
+    async def get_multiple(self, user_id: int, limit: int, offset: int):
         try:
             logger.debug("Запрос на получение данных из бд")
-            # stmt = select(self.model).filter_by(owner_id=user_id).limit(limit).offset(offset)
-            stmt = select(self.model).limit(limit).offset(offset)
+            stmt = select(self.model).filter_by(owner_id=user_id).limit(limit).offset(offset)
+            # stmt = select(self.model).limit(limit).offset(offset)
             respnonse = await self.session.execute(stmt)
             listeners = respnonse.scalars().all()
             return [i.convert_to_model() for i in listeners]
@@ -60,7 +59,6 @@ class ListenersRepository(SQLAlchemyRepository):
     async def get_emails_by_id(self, ids: list[int], ):
         try:
             logger.debug("Запрос на получение данных из бд")
-            # stmt = select(self.model).filter_by(owner_id=user_id).limit(limit).offset(offset)
             stmt = select(self.model.email).where(self.model.id.in_(ids))
             respnonse = await self.session.execute(stmt)
             emails = respnonse.scalars().all()
