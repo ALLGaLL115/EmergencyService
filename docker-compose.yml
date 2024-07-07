@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 x-app: &default-app
   build: .
@@ -29,7 +29,34 @@ services:
     volumes:
       - notify_app_pg_data:/var/lib/postgresql/data
 
-      
+  
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: rabb
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  
+  celery:
+    <<: [*default-app, *env]
+    command: celery -A config.celery_config:celery_app worker --loglevel=INFO
+    volumes:
+      - .:/app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+
+    
 
   api:
     <<: [*default-app, *env]
@@ -38,8 +65,11 @@ services:
     ports:
       - 3000:8000
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       db:
         condition: service_healthy
+
     volumes:
       - .:/app
 

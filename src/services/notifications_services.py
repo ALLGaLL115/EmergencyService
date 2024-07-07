@@ -6,7 +6,6 @@ from utils.uow import IUnitOfWork
 
 import logging
 from config.logging_config import setup_logging
-from config.celery_config import settings as smtp_settings
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -54,7 +53,7 @@ class NotificaionService:
                 notification = await uow.notifications.get(id=notification_id)
 
                 logger.debug("Отправка по почте ")
-                send_bulk_email_task.delay(listeners_emails, notification.title, notification.content)
+                send_bulk_email_task.delay(listeners_emails, notification.title, notification.body)
 
             except HTTPException as e:
                 # await uow.rollback()

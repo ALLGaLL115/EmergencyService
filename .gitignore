@@ -5,3 +5,5 @@
 .test.env
 
 pytest.ini
+
+.dev.env

@@ -5,21 +5,19 @@ from email.mime.text import MIMEText
 from email.utils import formataddr
 
 import logging
-from config.celery_config import settings
+from config.app_config import settings
 from config.logging_config import setup_logging
 
 setup_logging()
 logger = logging.getLogger(__name__)
 
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 465
 
 
 class EmailSender:
     def __init__(self):
-        self.smtp_host = SMTP_HOST
-        self.smtp_port = SMTP_PORT
+        self.smtp_host = settings.SMTP_HOST
+        self.smtp_port = settings.SMTP_PORT
         self.username = settings.SMTP_USER
         self.password = settings.SMTP_PASSWORD
 

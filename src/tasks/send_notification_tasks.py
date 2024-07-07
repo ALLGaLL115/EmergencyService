@@ -1,6 +1,5 @@
-from config.celery_config import celery_app, settings
 from utils.email_sender import EmailSender
-
+from .tasks import celery_app
 
 @celery_app.task(bind=True, max_retries=3)
 async def send_email_task(self, to_email, subject, body):
