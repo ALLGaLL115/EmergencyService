@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from schemas.listeners_schemas import ListenersShcema
 from schemas.notifications_schemas import NotificationsCreateSchema
 # from tasks.send_notification_tasks import send_bulk_email_task
@@ -93,6 +94,7 @@ class NotificaionService:
                 logger.debug('Удаление notification')
                 await uow.notifications.delete(id=id)
                 await uow.commit()
+                return "Notification was delete"
             
             except HTTPException as e:
                 await uow.rollback()

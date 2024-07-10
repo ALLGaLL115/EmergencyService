@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from database import Base
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError, InvalidRequestError
+from sqlalchemy.exc import SQLAlchemyError, InvalidRequestError, NoResultFound
 
 import logging
 from config.logging_config import setup_logging
@@ -139,6 +139,9 @@ class SQLAlchemyRepository(SQLAlchemyRepositoryAbstract):
             res = await self.session.execute(stmt)
             res = res.scalar_one()
             return res 
+        except NoResultFound as e:
+            logger.error(e)
+            raise HTTPException(status_code=404, detail="Notification with this id is not exists")
         
         except SQLAlchemyError as e:
             logger.error(e)

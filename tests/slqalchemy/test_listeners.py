@@ -5,8 +5,8 @@ from tests.slqalchemy.conftest import set_up_db
 from utils.uow import IUnitOfWork
 
 dd = ListenersCreateSchema(name='', phone='88888888888', email='sdfsd@mail.ru')
-ddu = ListenersShcema(id=1, name='1', phone='88888888888', email='sdfsd@mail.ru')
-ddr = ListenersShcema(id=1, name='', phone='88888888888', email='sdfsd@mail.ru')
+ddu = ListenersShcema(id=1, user_id=1, name='1', phone='88888888888', email='sdfsd@mail.ru')
+ddr = ListenersShcema(id=1, user_id=1, name='', phone='88888888888', email='sdfsd@mail.ru')
 
 async def test_create(tuow: IUnitOfWork):
     async with tuow:

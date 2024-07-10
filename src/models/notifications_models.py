@@ -31,6 +31,7 @@ class Notifications(Base):
             body = self.body,
             time_updated = self.time_updated,
             time_created = self.time_created,
+            listeners = [i.convert_to_model() for i in self.listeners]
         )
 
 

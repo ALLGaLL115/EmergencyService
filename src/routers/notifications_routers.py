@@ -48,7 +48,7 @@ async def send_notification(id: int, uow: UOWDep):
 async def get_notification(id:int, uow: UOWDep):
     try:
         notifycation = await NotificaionService().get_notification(id, uow)
-        return JSONResponse(content=notifycation)
+        return notifycation
     
     except HTTPException as e:
         raise e

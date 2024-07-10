@@ -42,7 +42,7 @@ class ListenersRepository(SQLAlchemyRepository):
     async def get_multiple(self, user_id: int, limit: int, offset: int):
         try:
             logger.debug("Запрос на получение данных из бд")
-            stmt = select(self.model).filter_by(owner_id=user_id).limit(limit).offset(offset)
+            stmt = select(self.model).filter_by(user_id=user_id).limit(limit).offset(offset)
             # stmt = select(self.model).limit(limit).offset(offset)
             respnonse = await self.session.execute(stmt)
             listeners = respnonse.scalars().all()
